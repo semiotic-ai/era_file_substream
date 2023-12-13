@@ -83,7 +83,7 @@ impl TryFrom<TransactionTrace> for TransactionReceipt {
 
     fn try_from(value: TransactionTrace) -> Result<Self, Self::Error> {
         let receipt = value.receipt
-            .ok_or(substreams::errors::Error::msg("Missing tx receipt"))?;
+            .ok_or_else(|| substreams::errors::Error::msg("Missing tx receipt"))?;
         Ok(Self::from(receipt))
     }
 }

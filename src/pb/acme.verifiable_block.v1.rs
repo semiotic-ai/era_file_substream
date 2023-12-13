@@ -1,6 +1,12 @@
 // @generated
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Era {
+    #[prost(message, repeated, tag="8192")]
+    pub blocks: ::prost::alloc::vec::Vec<VerifiableBlock>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VerifiableBlock {
     /// Hash is the block's hash.
     #[prost(bytes="vec", tag="2")]

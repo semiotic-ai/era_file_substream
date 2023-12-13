@@ -4,6 +4,10 @@ package acme.verifiable_block.v1;
 
 import "google/protobuf/timestamp.proto";
 
+message Era {
+  repeated VerifiableBlock blocks = 8192;
+}
+
 message VerifiableBlock {
   // Hash is the block's hash.
   bytes hash = 2;
