@@ -16,8 +16,8 @@ impl TryFrom<eth::v2::Block> for VerifiableBlock {
             header: block.header.map(BlockHeader::from),
             uncles: block.uncles.into_iter().map(BlockHeader::from).collect(),
             transaction_receipts,
-            balance_changes: vec![],
-            code_changes: vec![],
+            // balance_changes: vec![],
+            // code_changes: vec![],
             hash: block.hash,
         })
     }

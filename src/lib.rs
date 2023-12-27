@@ -1,11 +1,12 @@
 mod pb;
 mod utils;
+mod header_accumulator;
 
-use std::fmt::format;
 use substreams::pb::substreams::store_delta::Operation;
 use substreams::store::{StoreSet, StoreSetProto, StoreNew, StoreDelete, Deltas, DeltaProto};
 use pb::acme::verifiable_block::v1::VerifiableBlock;
 use substreams_ethereum::pb::eth;
+use crate::header_accumulator::{get_value_for_block};
 use crate::pb::acme::verifiable_block::v1::Era;
 
 #[substreams::handlers::map]
@@ -31,11 +32,9 @@ pub fn store_era(blk: VerifiableBlock, output: StoreSetProto<VerifiableBlock>) {
 }
 
 #[substreams::handlers::map]
-pub fn output_era(deltas: Deltas<DeltaProto<VerifiableBlock>>) -> Result<Era, substreams::errors::Error> {
+pub fn output_era(deltas: Deltas<DeltaProto<VerifiableBlock>>) -> Result<Option<Era>, substreams::errors::Error> {
     if deltas.deltas.len() == 1 {
-        return Ok(Era {
-            blocks: vec![]
-        });
+        return Ok(None);
     }
 
     let blocks: Vec<VerifiableBlock> = deltas.iter()
@@ -47,7 +46,10 @@ pub fn output_era(deltas: Deltas<DeltaProto<VerifiableBlock>>) -> Result<Era, su
         return Err(substreams::errors::Error::msg(format!("Invalid number of blocks in era: {}", blocks.len())));
     }
 
-    Ok(Era {
-        blocks
-    })
+    let header_accumulator_value = get_value_for_block(blocks[0].number);
+
+    Ok(Some(Era {
+        blocks,
+        header_accumulator_value,
+    }))
 }
