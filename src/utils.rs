@@ -1,13 +1,13 @@
 use prost_types::Timestamp;
 use substreams_ethereum::pb::eth;
-use substreams_ethereum::pb::eth::v2::TransactionTrace;
-use crate::pb::acme::verifiable_block::v1::{BigInt, BlockHeader, Log, TransactionReceipt, Uint64Array, Uint64NestedArray, VerifiableBlock};
+use substreams_ethereum::pb::eth::v2::{CallType, TransactionTrace};
+use crate::pb::acme::verifiable_block::v1::{AccessTuple, BigInt, BlockHeader, Log, Transaction, TransactionReceipt, Uint64Array, Uint64NestedArray, VerifiableBlock};
 
 impl TryFrom<eth::v2::Block> for VerifiableBlock {
     type Error = substreams::errors::Error;
 
     fn try_from(block: eth::v2::Block) -> Result<Self, Self::Error>{
-        let transaction_receipts = block.transaction_traces.into_iter().map(TransactionReceipt::try_from)
+        let transactions = block.transaction_traces.into_iter().map(Transaction::try_from)
             .collect::<Result<Vec<_>, _>>()?;
 
         Ok(Self {
@@ -15,9 +15,7 @@ impl TryFrom<eth::v2::Block> for VerifiableBlock {
             size: block.size,
             header: block.header.map(BlockHeader::from),
             uncles: block.uncles.into_iter().map(BlockHeader::from).collect(),
-            transaction_receipts,
-            // balance_changes: vec![],
-            // code_changes: vec![],
+            transactions,
             hash: block.hash,
         })
     }
@@ -78,13 +76,41 @@ impl From<eth::v2::Uint64Array> for Uint64Array {
     }
 }
 
-impl TryFrom<TransactionTrace> for TransactionReceipt {
+impl TryFrom<TransactionTrace> for Transaction {
     type Error = substreams::errors::Error;
 
     fn try_from(value: TransactionTrace) -> Result<Self, Self::Error> {
-        let receipt = value.receipt
-            .ok_or_else(|| substreams::errors::Error::msg("Missing tx receipt"))?;
-        Ok(Self::from(receipt))
+        let transaction = Transaction {
+            to: map_tx_to(&value)?, // TODO: PROBLEM IS HERE
+            nonce: value.nonce,
+            gas_price: value.gas_price.map(BigInt::from),
+            gas_limit: value.gas_limit,
+            value: value.value.map(BigInt::from),
+            input: value.input,
+            v: value.v,
+            r: value.r,
+            s: value.s,
+            r#type: value.r#type,
+            access_list: value.access_list.into_iter().map(|access| AccessTuple {
+                address: access.address,
+                storage_keys: access.storage_keys,
+            }).collect(),
+            receipt: value.receipt.map(TransactionReceipt::from),
+        };
+
+        Ok(transaction)
+    }
+}
+
+fn map_tx_to(trace: &TransactionTrace) -> Result<Vec<u8>, substreams::errors::Error> {
+    let first_call = trace.calls.first().ok_or(substreams::errors::Error::msg("No calls in tx"))?;
+
+    let call_type = first_call.call_type();
+
+    if call_type == CallType::Create {
+        Ok(vec![])
+    } else {
+        Ok(trace.to.clone())
     }
 }
 

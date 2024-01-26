@@ -1,7 +1,7 @@
 specVersion: v0.1.0
 package:
   name: 'era_file_substream'
-  version: v1.0.0
+  version: v1.0.1
 
 protobuf:
   files:
@@ -21,16 +21,16 @@ modules:
       - source: sf.ethereum.type.v2.Block
     output:
       type: proto:acme.block_meta.v1.VerifiableBlock
-  - name: store_era
-    kind: store
-    inputs:
-      - map: map_block
-    updatePolicy: set
-    valueType: proto:acme.block_meta.v1.VerifiableBlock
-  - name: output_era
-    kind: map
-    inputs:
-      - store: store_era
-        mode: deltas
-    output:
-      type: proto:acme.block_meta.v1.Era
+#  - name: store_era
+#    kind: store
+#    inputs:
+#      - map: map_block
+#    updatePolicy: set
+#    valueType: proto:acme.block_meta.v1.VerifiableBlock
+#  - name: output_era
+#    kind: map
+#    inputs:
+#      - store: store_era
+#        mode: deltas
+#    output:
+#      type: proto:acme.block_meta.v1.Era
