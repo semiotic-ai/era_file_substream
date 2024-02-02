@@ -96,11 +96,16 @@ impl TryFrom<TransactionTrace> for Transaction {
                 storage_keys: access.storage_keys,
             }).collect(),
             receipt: value.receipt.map(TransactionReceipt::from),
+            status: value.status,
+            max_fee_per_gas: value.max_fee_per_gas.map(BigInt::from),
+            max_priority_fee_per_gas: value.max_priority_fee_per_gas.map(BigInt::from),
+            hash: value.hash,
         };
 
         Ok(transaction)
     }
 }
+
 
 fn map_tx_to(trace: &TransactionTrace) -> Result<Vec<u8>, substreams::errors::Error> {
     let first_call = trace.calls.first().ok_or(substreams::errors::Error::msg("No calls in tx"))?;
