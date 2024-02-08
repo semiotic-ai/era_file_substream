@@ -211,26 +211,24 @@ pub struct Transaction {
     /// is possible only if Berlin (TRX_TYPE_ACCESS_LIST) nor London (TRX_TYPE_DYNAMIC_FEE) fork are active on the chain.
     #[prost(message, repeated, tag="14")]
     pub access_list: ::prost::alloc::vec::Vec<AccessTuple>,
-    //   // MaxFeePerGas is the maximum fee per gas the user is willing to pay for the transaction gas used.
-    //   //
-    //   // This will is populated only if `TransactionTrace.Type == TRX_TYPE_DYNAMIC_FEE` which is possible only
-    //   // if Londong fork is active on the chain.
-    //   //
-    //   // Only available in DetailLevel: EXTENDED
-    //   BigInt max_fee_per_gas = 11;
-
-    //   // MaxPriorityFeePerGas is priority fee per gas the user to pay in extra to the miner on top of the block's
-    //   // base fee.
-    //   //
-    //   // This will is populated only if `TransactionTrace.Type == TRX_TYPE_DYNAMIC_FEE` which is possible only
-    //   // if London fork is active on the chain.
-    //   //
-    //   // Only available in DetailLevel: EXTENDED
-    //   BigInt max_priority_fee_per_gas = 13;
+    /// MaxFeePerGas is the maximum fee per gas the user is willing to pay for the transaction gas used.
+    ///
+    /// This will is populated only if `TransactionTrace.Type == TRX_TYPE_DYNAMIC_FEE` which is possible only
+    /// if Londong fork is active on the chain.
+    #[prost(message, optional, tag = "11")]
+    pub max_fee_per_gas: ::core::option::Option<BigInt>,
+    /// MaxPriorityFeePerGas is priority fee per gas the user to pay in extra to the miner on top of the block's
+    /// base fee.
+    ///
+    /// This will is populated only if `TransactionTrace.Type == TRX_TYPE_DYNAMIC_FEE` which is possible only
+    /// if Londong fork is active on the chain.
+    #[prost(message, optional, tag = "13")]
+    pub max_priority_fee_per_gas: ::core::option::Option<BigInt>,
 
     // meta
     //   uint32 index = 20;
-    //   bytes hash = 21;
+    #[prost(bytes = "vec", tag = "21")]
+    pub hash: ::prost::alloc::vec::Vec<u8>,
     //   bytes from = 22;
     // Only available in DetailLevel: EXTENDED
     //   bytes return_data = 23;
@@ -264,6 +262,8 @@ pub struct Transaction {
     // `REASON_REWARD_TRANSACTION_FEE` and for nonce change, still on the root call, you pick the nonce change which the
     // smallest ordinal (if more than one).
     //   TransactionTraceStatus status = 30;
+    #[prost(enumeration = "TransactionTraceStatus", tag = "30")]
+    pub status: i32,
 
     #[prost(message, optional, tag="31")]
     pub receipt: ::core::option::Option<TransactionReceipt>,
